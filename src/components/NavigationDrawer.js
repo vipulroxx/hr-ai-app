@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Drawer,
   List,
@@ -8,8 +8,11 @@ import {
   Divider,
   Toolbar,
   Typography,
-  Box
+  Box,
+  IconButton,
+  useMediaQuery
 } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import EventNoteIcon from '@mui/icons-material/EventNote';
@@ -55,80 +58,121 @@ const drawerWidth = 260;
 
 export default function NavigationDrawer() {
   const location = useLocation();
+  // Use md breakpoint (960px) for tablets and below, persistent for larger screens
+  const isTemporary = useMediaQuery('(max-width:1279px)'); // temporary for <1280px (laptop/iPad and below)
+  const [open, setOpen] = useState(false);
 
-  return (
-    <Drawer
-      variant="permanent"
-      anchor="left"
+  const menuButton = (
+    <Box
       sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: drawerWidth,
-          boxSizing: 'border-box',
-          background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
-          color: '#fff'
-        }
+        position: 'fixed',
+        top: 8,
+        left: 8,
+        zIndex: 2000,
+        display: { xs: 'block', md: 'block', lg: 'none' }
       }}
     >
-      <Toolbar>
-        <Box display="flex" alignItems="center" width="100%">
-          <img src="/logo192.png" alt="HR AI" style={{ width: 36, marginRight: 12 }} />
-          <Typography variant="h6" noWrap sx={{ fontWeight: 700 }}>
-            HR AI System
-          </Typography>
-        </Box>
-      </Toolbar>
-      <Divider sx={{ background: 'rgba(255,255,255,0.2)' }} />
-      <List>
-        {mainNav.map(item => (
-          <ListItem
-            button
-            key={item.text}
-            component={Link}
-            to={item.path}
-            selected={location.pathname === item.path}
-            sx={{
-              color: '#fff',
-              '&.Mui-selected': {
-                background: 'rgba(255,255,255,0.12)',
-                fontWeight: 600
-              },
-              '&:hover': {
-                background: 'rgba(255,255,255,0.08)'
-              }
-            }}
-          >
-            <ListItemIcon sx={{ color: '#fff' }}>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
-          </ListItem>
-        ))}
-      </List>
-      <Divider sx={{ background: 'rgba(255,255,255,0.2)' }} />
-      <List>
-        {supportNav.map(item => (
-          <ListItem
-            button
-            key={item.text}
-            component={Link}
-            to={item.path}
-            selected={location.pathname === item.path}
-            sx={{
-              color: '#fff',
-              '&.Mui-selected': {
-                background: 'rgba(255,255,255,0.12)',
-                fontWeight: 600
-              },
-              '&:hover': {
-                background: 'rgba(255,255,255,0.08)'
-              }
-            }}
-          >
-            <ListItemIcon sx={{ color: '#fff' }}>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
-          </ListItem>
-        ))}
-      </List>
-    </Drawer>
+      <IconButton
+        color="inherit"
+        aria-label="open drawer"
+        onClick={() => setOpen(true)}
+        size="large"
+        sx={{
+          background: 'rgba(30,60,114,0.9)',
+          color: '#fff',
+          '&:hover': { background: 'rgba(30,60,114,1)' }
+        }}
+      >
+        <MenuIcon />
+      </IconButton>
+    </Box>
+  );
+
+  return (
+    <>
+      {isTemporary && menuButton}
+      <Drawer
+        variant={isTemporary ? 'temporary' : 'persistent'}
+        open={isTemporary ? open : true}
+        onClose={() => setOpen(false)}
+        anchor="left"
+        ModalProps={{
+          keepMounted: true,
+        }}
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          display: { xs: 'block', md: 'block' },
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
+            color: '#fff',
+            transition: 'width 0.2s',
+          }
+        }}
+      >
+        <Toolbar>
+          <Box display="flex" alignItems="center" width="100%">
+            <img src="/logo192.png" alt="HR AI" style={{ width: 36, marginRight: 12 }} />
+            <Typography variant="h6" noWrap sx={{ fontWeight: 700 }}>
+              HR AI System
+            </Typography>
+          </Box>
+        </Toolbar>
+        <Divider sx={{ background: 'rgba(255,255,255,0.2)' }} />
+        <List>
+          {mainNav.map(item => (
+            <ListItem
+              button
+              key={item.text}
+              component={Link}
+              to={item.path}
+              selected={location.pathname === item.path}
+              sx={{
+                color: '#fff',
+                '&.Mui-selected': {
+                  background: 'rgba(255,255,255,0.12)',
+                  fontWeight: 600
+                },
+                '&:hover': {
+                  background: 'rgba(255,255,255,0.08)'
+                }
+              }}
+              onClick={() => isTemporary && setOpen(false)}
+            >
+              <ListItemIcon sx={{ color: '#fff' }}>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItem>
+          ))}
+        </List>
+        <Divider sx={{ background: 'rgba(255,255,255,0.2)' }} />
+        <List>
+          {supportNav.map(item => (
+            <ListItem
+              button
+              key={item.text}
+              component={Link}
+              to={item.path}
+              selected={location.pathname === item.path}
+              sx={{
+                color: '#fff',
+                '&.Mui-selected': {
+                  background: 'rgba(255,255,255,0.12)',
+                  fontWeight: 600
+                },
+                '&:hover': {
+                  background: 'rgba(255,255,255,0.08)'
+                }
+              }}
+              onClick={() => isTemporary && setOpen(false)}
+            >
+              <ListItemIcon sx={{ color: '#fff' }}>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
+    </>
   );
 }

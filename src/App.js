@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { CssBaseline, Box } from '@mui/material';
+import { CssBaseline, Box, useMediaQuery } from '@mui/material';
 import NavigationDrawer from './components/NavigationDrawer';
 import AppBar from './components/AppBar';
 import Login from './components/Auth/Login';
@@ -30,6 +30,7 @@ function App() {
   ]);
   const [input, setInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const isMobile = useMediaQuery('(max-width:900px)'); // iPad Pro and below
 
   const handleSend = (msg) => {
     setMessages([...messages, { from: 'user', text: msg }]);
@@ -46,15 +47,35 @@ function App() {
     <Router>
       <CssBaseline />
       {isAuthenticated ? (
-        <Box>
+        <Box sx={{ display: 'flex', flexDirection: 'row', width: '100vw', minHeight: '100vh', background: '#f4f4f4' }}>
           <NavigationDrawer />
-          <Box component="main" sx={{ flexGrow: 1, ml: '260px', mt: 0, mb: 0, mr: 0, p: 0 }}>
+          <Box
+            component="main"
+            sx={{
+              flexGrow: 1,
+              width: '100%',
+              ml: isMobile ? 0 : '260px', // Only add left margin for persistent drawer
+              p: { xs: 1, sm: 2, md: 4 },
+              transition: 'margin-left 0.2s, width 0.2s',
+              minHeight: '100vh',
+              boxSizing: 'border-box',
+              background: '#f4f4f4',
+              overflowX: 'hidden'
+            }}
+          >
             <AppBar
               title="Indian Air Force - Artificial Intelligence for Human Resource Management"
             />
             <Routes>
-              <Route path="/" element={<ChallengeOverview />} />
-              <Route path="/dashboard" element={<Dashboard />} />
+              {/* Ensure "/" points to Dashboard so something always renders */}
+              <Route path="/" element={<Dashboard />} />
+              {/* Optionally, add a route for ChallengeOverview */}
+              <Route path="/overview" element={<ChallengeOverview />} />
+              <Route path="/postings-planner" element={<PostingsPlanner />} />
+              <Route path="/movement-analytics" element={<MovementAnalytics />} />
+              <Route path="/skill-mapping" element={<SkillMapping />} />
+              <Route path="/correspondence" element={<CorrespondenceGenerator />} />
+              <Route path="/feedback" element={<FeedbackModule />} />
               <Route path="/directory" element={<EmployeeDirectory />} />
               <Route path="/leave" element={<LeaveRequestForm />} />
               <Route path="/policies" element={<PolicyViewer />} />
@@ -64,12 +85,6 @@ function App() {
               <Route path="/payroll" element={<Payroll />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/settings" element={<ProfileSettings />} />
-              {/* New modules */}
-              <Route path="/postings-planner" element={<PostingsPlanner />} />
-              <Route path="/movement-analytics" element={<MovementAnalytics />} />
-              <Route path="/skill-mapping" element={<SkillMapping />} />
-              <Route path="/correspondence" element={<CorrespondenceGenerator />} />
-              <Route path="/feedback" element={<FeedbackModule />} />
               {/* AI HR Assistant Chat only on /chat */}
               <Route
                 path="/chat"
@@ -88,7 +103,8 @@ function App() {
                   </>
                 }
               />
-              {/* Add other HR module routes here */}
+              {/* Redirect any unknown route to dashboard */}
+              <Route path="*" element={<Dashboard />} />
             </Routes>
           </Box>
         </Box>
